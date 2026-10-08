@@ -1,0 +1,88 @@
+{
+  "name": "timelog",
+  "version": "1.0.5",
+  "description": "Local personal time logger",
+  "author": "TimeLog",
+  "private": true,
+  "main": "build/electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run tests/domain --experimental.viteModuleRunner=false",
+    "verify:migrations": "node tests/domain/verify-migrations.mjs",
+    "test:desktop": "node tests/desktop.mjs",
+    "dist": "npm run build && electron-builder --win --dir --x64 && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/portable.ps1",
+    "dist:installer": "npm run build && electron-builder --win nsis --x64",
+    "test:store": "npm run build && node tests/store.mjs",
+    "test:reports": "node tests/reports.mjs",
+    "test:notifications": "node tests/notifications.mjs",
+    "test:revisions": "node tests/revisions.mjs"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zustand": "^5.0.0",
+    "sql.js": "1.14.2",
+    "lucide-react": "^0.577.0"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "vite": "8.3.2",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3",
+    "esbuild": "^0.27.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/node": "^24.0.0",
+    "@types/sql.js": "^1.4.0",
+    "playwright": "^1.58.0"
+  },
+  "build": {
+    "appId": "local.timelog.desktop",
+    "productName": "TimeLog",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/electron/**/*",
+      "build/renderer/**/*",
+      "!build/electron/store-test.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/sql.js/dist/sql-wasm.wasm",
+        "to": "sql-wasm.wasm"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "TimeLog-Portable-${version}.exe"
+    },
+    "nsis": {
+      "artifactName": "TimeLog-Setup-${version}.exe",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "electronDist": "node_modules/electron/dist",
+    "npmRebuild": false
+  }
+}
